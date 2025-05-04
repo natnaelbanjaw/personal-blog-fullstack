@@ -32,6 +32,7 @@ res.render("index", {
     } catch (error) {
         console.error(error);
     }
+
 });
 
 // router.get("/", async (req, res)=>{
@@ -51,20 +52,25 @@ res.render("index", {
 
 // GET//POST
 
-router.get("/post/:id", async (req, res)=>{
+router.get("/post/:id", async (req, res) => {
     try {
-        const slug = req.params.id;
-        const data = await Post.findById({ _id: slug});
-        
-        const locals = {
-            title: data.title,
-            description:"simple blog created with NodeJS, express, MongoDB",
-            currentRoute : `/post/${slug}`
+        const slug = req.params.id; // Get the post ID from the URL
+        const data = await Post.findById(slug); // Fetch the post from the database
+
+        if (!data) {
+            return res.status(404).send("Post not found");
         }
 
-res.render("post", { locals, data });
+        res.render("post", {
+            title: data.title,
+            body: data.body,
+            createdAt: data.createdAt.toDateString(),
+            currentRoute : "/post/" + slug
+        });
+        
     } catch (error) {
         console.error(error);
+        res.status(500).send("Internal Server Error");
     }
 });
 
@@ -102,7 +108,11 @@ router.get("/about", (req, res)=>{
         currentRoute : "/about"
     });
     });
-    
+
+router.get("/contact", (req, res) => {
+
+    res.render("contact", { currentRoute : "/contact" });
+});
 
 
 
